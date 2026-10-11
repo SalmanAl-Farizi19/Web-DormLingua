@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DormLingua - Portal Bahasa Asrama</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- SCREEN LOGIN TERPISAH -->
+    <div id="authScreen" class="auth-wrapper">
+        <div class="card auth-card" id="authCardBorder">
+            <!-- Tombol Tema di Halaman Login -->
+            <div style="display: flex; justify-content: flex-end; margin-bottom: -10px;">
+                <button onclick="toggleTheme()" class="btn-theme-toggle" title="Ubah Tema Gelap/Terang" style="background: var(--border-color); color: var(--text-color);">🌙/☀️</button>
+            </div>
+
+            <div style="text-align: center; margin-bottom: 12px;">
+                <img src="logo.svg" alt="DormLingua Logo" style="width: 65px; height: 65px; object-fit: contain; border-radius: 12px;">
+            </div>
+            <h2 id="authTitle" class="auth-title">DormLingua Portal</h2>
+            <p class="auth-subtitle">Sistem Digitalisasi Bahasa & Kelola Asrama</p>
+            
+            <div class="auth-tabs">
+                <button id="btnTabUser" class="auth-tab-btn active" onclick="switchAuthMode('user')">Login Mahasiswa Santri</button>
+                <button id="btnTabAdmin" class="auth-tab-btn" onclick="switchAuthMode('admin')">Login Admin (Staff)</button>
+            </div>
+
+            <form id="formLoginUser" onsubmit="handleUserAuth(event)">
+                <div class="form-group">
+                    <label>Nama Mahasiswa Santri</label>
+                    <input type="text" id="authNama" required placeholder="Contoh: Muhammad Zaid" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Semester</label>
+                    <select id="authSemester" class="form-control">
+                        <option value="1">Semester 1</option>
+                        <option value="2">Semester 2</option>
+                        <option value="3">Semester 3</option>
+                        <option value="4" selected>Semester 4</option>
+                        <option value="5">Semester 5</option>
+                        <option value="6">Semester 6</option>
+                        <option value="7">Semester 7</option>
+                        <option value="8+">Semester 8+</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Asrama / Kamar</label>
+                    <input type="text" id="authAsrama" required placeholder="Contoh: Kamar Abu Bakar" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="authPassword" required placeholder="Masukkan password akun" class="form-control">
+                </div>
+                <button type="submit" class="btn">Masuk sebagai Santri</button>
+            </form>
+
+            <form id="formLoginAdmin" class="hidden" onsubmit="handleAdminAuth(event)">
+                <div class="form-group">
+                    <label>Nama Admin / Staff</label>
+                    <input type="text" id="adminNama" required placeholder="Masukkan nama pengurus" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Password Admin</label>
+                    <input type="password" id="adminPassword" required placeholder="Masukkan password pengurus" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-admin">Masuk / Daftar sebagai Admin</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- APLIKASI UTAMA -->
+    <div id="appScreen" class="hidden">
+        <nav>
+            <div class="nav-brand" style="display: flex; align-items: center; gap: 10px;">
+                <img src="logo.svg" alt="Logo" style="width: 32px; height: 32px; object-fit: contain; border-radius: 6px;">
+                <span>DormLingua</span> 
+                <span id="labelRoleNav" class="nav-role-label">Santri</span>
+            </div>
+            
+            <div class="nav-right">
+                <div id="navSharedMenu" class="nav-menu-user">
+                    <button id="menuDashboard" onclick="switchTab('home')">Dashboard</button>
+                    <button id="menuMufrodat" onclick="switchTab('mufrodat')">Bank Mufrodat</button>
+                    <button id="menuKuis" onclick="switchTab('kuis')">🎮 Kuis Berpoin</button>
+                    <button id="menuLeaderboard" onclick="switchTab('leaderboard')">🏆 Leaderboard</button>
+                </div>
+
+                <div class="role-badge" id="badgeRoleInfo">
+                    👤 Mahasiswa
+                </div>
+
+                <!-- Tombol Mode Gelap / Terang di Navbar -->
+                <button onclick="toggleTheme()" class="btn-theme-toggle" title="Ubah Tema Gelap/Terang">🌙/☀️</button>
+            </div>
+        </nav>
+
+        <div class="container">
+
+            <!-- AREA SANTRI (USER) -->
+            <div id="areaUser" class="hidden">
+                <div id="user-home" class="subtab-content">
+                    <div class="card user-banner">
+                        <h1 id="salamUser" class="banner-title">Ahlan wa Sahlan 👋</h1>
+                        <p class="banner-desc">Tingkatkan penguasaan kosakata untuk masuk jajaran Leaderboard Semestermu!</p>
+                    </div>
+                    <div class="grid-3">
+                        <div class="card">
+                            <p class="stat-label">Mufrodat Dikuasai</p>
+                            <h3 id="statUserMufrodat" class="stat-value">3 Kosakata</h3>
+                        </div>
+                        <div class="card">
+                            <p class="stat-label">Total Poin Bahasa</p>
+                            <h3 id="statUserPoin" class="stat-value text-green">0 Poin</h3>
+                        </div>
+                        <div class="card">
+                            <p class="stat-label">Status Akun</p>
+                            <h3 id="statUserStatus" class="stat-title-sm">Aktif</h3>
+                        </div>
+                    </div>
+                    <button onclick="logoutAkun()" class="btn btn-danger-custom">Keluar Akun (Logout)</button>
+                </div>
+
+                <div id="user-mufrodat" class="subtab-content hidden">
+                    <h2 class="section-title">📚 Daftar Kosakata Resmi Asrama</h2>
+                    <div id="containerMufrodatUser" class="grid-2"></div>
+                </div>
+
+                <div id="user-kuis" class="subtab-content hidden">
+                    <div class="card kuis-card-container">
+                        <div class="kuis-header">
+                            <h2 class="kuis-title">🎮 Kuis Kosakata Berpoin</h2>
+                            <span id="labelIndexKuis" class="kuis-badge">Soal 1</span>
+                        </div>
+                        <p class="kuis-desc">Jawab benar di percobaan pertama mendapat +25 poin. Salah = -5 poin.</p>
+                        
+                        <div id="areaKuisAktif">
+                            <p id="soalKuisTeks" class="kuis-question">Memuat soal...</p>
+                            <div id="pilihanJawabanContainer" class="kuis-options-group"></div>
+                        </div>
+                        <p id="feedbackKuis" class="kuis-feedback"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AREA ADMIN (PENGURUS / DOSEN) -->
+            <div id="areaAdmin" class="hidden">
+                <div id="admin-home" class="subtab-content">
+                    <div class="card admin-banner flex-between">
+                        <div>
+                            <h1 id="salamAdmin" class="banner-title">Panel Kontrol Admin 🛠️</h1>
+                            <p class="banner-desc">Tambah materi kosakata dan buat kuis berpoin untuk mahasiswa santri.</p>
+                        </div>
+                        <button onclick="logoutAkun()" class="btn btn-admin-logout">Logout Admin</button>
+                    </div>
+
+                    <div class="grid-3">
+                        <div class="card">
+                            <p class="stat-label">Total Kosakata Aktif</p>
+                            <h3 id="adminStatTotalMufrodat" class="stat-value">3</h3>
+                        </div>
+                        <div class="card">
+                            <p class="stat-label">Total Kuis Aktif</p>
+                            <h3 id="adminStatTotalKuis" class="stat-value text-orange">1 Soal</h3>
+                        </div>
+                        <div class="card">
+                            <p class="stat-label">Total Mahasiswa Terdaftar</p>
+                            <h3 id="adminStatTotalUser" class="stat-value text-green">0 User</h3>
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <!-- Form Tambah Mufrodat -->
+                        <div class="card card-border-orange">
+                            <h2 class="form-box-title text-orange-dark">➕ Tambah Materi Kosakata Baru</h2>
+                            <form onsubmit="adminTambahMufrodat(event)">
+                                <div class="form-group">
+                                    <label>Semester Target</label>
+                                    <select id="admSemesterTarget" class="form-control">
+                                        <option value="1">Semester 1</option>
+                                        <option value="2">Semester 2</option>
+                                        <option value="3">Semester 3</option>
+                                        <option value="4" selected>Semester 4</option>
+                                        <option value="5">Semester 5</option>
+                                        <option value="6">Semester 6</option>
+                                        <option value="7">Semester 7</option>
+                                        <option value="8+">Semester 8+</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Kategori Bahasa</label>
+                                    <select id="admKategori" class="form-control">
+                                        <option value="ARAB">Bahasa Arab</option>
+                                        <option value="INGGRIS">Bahasa Inggris</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Kosakata / Istilah</label>
+                                    <input type="text" id="admKata" required placeholder="Contoh: جِدِّيَّةٌ (Jiddiyatun)" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>Arti / Terjemahan</label>
+                                    <input type="text" id="admArti" required placeholder="Contoh: Keseriusan" class="form-control">
+                                </div>
+                                <button type="submit" class="btn btn-admin">Simpan Kosakata</button>
+                            </form>
+                        </div>
+
+                        <!-- Form Buat Kuis -->
+                        <div class="card card-border-orange">
+                            <h2 class="form-box-title text-orange-dark">📝 Tambah Soal Kuis Baru</h2>
+                            <form onsubmit="adminBuatKuis(event)">
+                                <div class="form-group">
+                                    <label>Semester Target Kuis</label>
+                                    <select id="admKuisSemester" class="form-control">
+                                        <option value="1">Semester 1</option>
+                                        <option value="2">Semester 2</option>
+                                        <option value="3">Semester 3</option>
+                                        <option value="4" selected>Semester 4</option>
+                                        <option value="5">Semester 5</option>
+                                        <option value="6">Semester 6</option>
+                                        <option value="7">Semester 7</option>
+                                        <option value="8+">Semester 8+</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Pertanyaan Kuis</label>
+                                    <input type="text" id="admSoal" required placeholder="Contoh: Arti kata 'Resilience'?" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>Pilihan Opsi 1</label>
+                                    <input type="text" id="admOpsi1" required placeholder="Contoh: Kebosanan" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>Pilihan Opsi 2</label>
+                                    <input type="text" id="admOpsi2" required placeholder="Contoh: Ketangguhan" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>Kunci Jawaban yang Benar</label>
+                                    <select id="admKunci" class="form-control">
+                                        <option value="1">Opsi 1 Benar</option>
+                                        <option value="2">Opsi 2 Benar</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-admin">Tambah Soal ke Sistem</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LEADERBOARD BERSAMA -->
+            <div id="shared-leaderboard" class="subtab-content hidden">
+                <div id="adminBackBtnContainer" class="hidden mb-15">
+                    <button onclick="switchTab('home')" class="btn btn-admin btn-auto-width">← Kembali ke Dashboard Admin</button>
+                </div>
+
+                <div class="leaderboard-header-flex">
+                    <h2 class="section-title">🏆 Leaderboard Mahasiswa Santri</h2>
+                    <div>
+                        <label class="filter-label">Pilih Semester:</label>
+                        <select id="filterSemester" onchange="renderLeaderboard()" class="form-control filter-select">
+                            <option value="1">Semester 1</option>
+                            <option value="2">Semester 2</option>
+                            <option value="3">Semester 3</option>
+                            <option value="4" selected>Semester 4</option>
+                            <option value="5">Semester 5</option>
+                            <option value="6">Semester 6</option>
+                            <option value="7">Semester 7</option>
+                            <option value="8+">Semester 8+</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card table-card-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Nama Mahasiswa</th>
+                                <th>Asrama</th>
+                                <th class="text-center">Total Poin</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelLeaderboardBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
